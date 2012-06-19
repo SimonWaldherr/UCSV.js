@@ -1,0 +1,64 @@
+body{
+	margin: 25px;
+}
+.bt {
+	float: left;
+	margin: 1em;
+	padding: .5em;
+	border: outset 2px #ff0;
+	cursor: pointer;
+}
+
+.bt:active {
+	border-style: inset;
+}
+
+
+#import, #export {
+	background: #6f0;
+}
+
+#addrow, #addcol {
+	background: #fa0;
+}
+
+#import:hover, #export:hover {
+	background: #af0;
+}
+
+#addrow:hover, #addcol:hover {
+	background: #ff0;
+}
+
+
+#grid, #grid td {
+	border: 1px solid #999;
+	border-collapse: collapse;
+	min-width: 1em;
+	min-height: 1em;
+	cursor: cell;
+}
+
+#grid td:hover {
+	background: #acf;
+}
+
+#inout {
+	float: left;
+	width: 400px;
+	height: 300px;
+}
+
+#content {
+	border-collapse: collapse;
+}
+#content > tbody > tr > td {
+	background-color: GhostWhite;
+}
+#content > tbody > tr > td + td {
+	background-color: Gainsboro;
+}
+
+#content td { 
+	padding: 1em;
+}
