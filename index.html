@@ -14,26 +14,34 @@
                 or export the data in the grid to this text area.</p>
                 <textarea id="inout"></textarea>
             </td><td valign="top">
-            <p>Click on a cell to edit it.  If you enter <em>*null*</em> the field will be converted to a null (empty field) when exported.</p>
+            <p>Click on a cell to edit it.  If you enter <em>*null*</em> the<br> field will be converted to a null (empty field) when exported.</p>
                 <table id="grid">
                     <tr>
-                        <td>Test data 1</td>
-                        <td>"Test" data 2</td>
-                        <td>Test data 3</td>
+                        <td>lorem</td>
+                        <td>ipsum</td>
+                        <td>dolar</td>
                     </tr>
                     <tr>
-                        <td>Test data 4</td>
-                        <td>Test data 5</td>
-                        <td>Test data 6</td>
+                        <td>sit</td>
+                        <td>amet</td>
+                        <td>lorem</td>
                     </tr>
                 </table>
-                <span id="addrow" class="bt">Add new row</span>
-                <span id="addcol" class="bt">Add new column</span>
+                <span id="addrow" onclick="addRow();" class="bt">Add new row</span>
+                <span id="addcol" onclick="addCol();" class="bt">Add new column</span>
+            </td><td>
+                <p>you can convert CSV to a markdown table.</p>
+                    <textarea id="markdownta"></textarea>
+            </td>
             </tr><tr>
                 <td>
-                    <span id="import" class="bt">Import CSV to grid &rarr;</span>
-                </td><td>
-                    <span id="export" class="bt">Export grid to CSV &larr;</span><br>
+                    <span id="import" onclick="csvtotable();" class="bt">Import CSV to grid &rarr;</span>
+                </td>
+                <td>
+                    <span id="export" onclick="tabletocsv()" class="bt">Export grid to CSV &larr;</span><br>
+                </td>
+                <td>
+                    <span id="markdown" onclick="csvtomd()" class="bt">Convert CSV to Markdown &uarr;</span><br>
                 </td>
         </tr></table>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="application/javascript"></script>
@@ -61,7 +69,16 @@
         return d;
     }
     
-    function importdata() {
+    function addchars(count, xchar) {
+        var i, out = '';
+        for(i = 0; i < count; i++)
+          {
+            out += xchar;
+          }
+        return out;
+    }
+    
+    function csvtotable() {
         var i, j, row, out = '',
         cell = '',
         csv = $('#inout').val(), // get the input from the textbox
@@ -83,7 +100,7 @@
         $('#grid').html(out);
     }
     
-    function exportdata() {
+    function tabletocsv() {
         var i, j, arr = [], csv,
         rxIsInt = /^\d+$/,
         rxIsFloat = /^\d*\.\d+$|^\d+\.\d*$/,
@@ -123,6 +140,60 @@
         $('#inout').val(csv);
     }
     
+    function csvtomd(){
+        var i, j, row, out = '',
+        cell = '',
+        csv = $('#inout').val(), // get the input from the textbox
+        arr = CSV.csvToArray(csv); // Convert the csv into an array
+        celllength = [];
+        // Each item in the array is a row from the csv
+        // walk each row and create table cells for them
+        
+        for (i = 0; i < arr.length; i += 1) {
+            row = arr[i];
+            for (j = 0; j < row.length; j += 1) {
+                cell = sanitize_input(row[j]);
+                if((celllength[j]<cell.length)||(celllength[j] === undefined))
+                  {
+                    celllength[j] = cell.length;
+                  }
+            }
+        }
+        
+        for (i = 0; i < arr.length; i += 1) {
+            row = arr[i];
+            out += '';
+            for (j = 0; j < row.length; j += 1) {
+                cell = sanitize_input(row[j])+' ';
+                if(cell.length-1 < celllength[j])
+                  {
+                    cell += addchars((celllength[j]-cell.length+1), " ");
+                  }
+                out += cell;
+                if(j!=(row.length-1))
+                  {
+                    out += '|';
+                  }
+            }
+            if(i == 0) {
+                cell = '';
+                for (j = 0; j < celllength.length; j += 1)
+                  {
+                    cell += addchars(celllength[j]+1,'-');
+                    if(j!=(celllength.length-1))
+                      {
+                        cell += '|';
+                      }
+                  }
+                out += '\n'+cell;
+            }
+            out += '\n';
+        }
+        
+        // replace the current data with the new imported data
+        $('#markdownta').val(out);
+    }
+    
     function addRow() {
         var i,
                 tdCount = $('#grid tr:last>td').length,
@@ -146,12 +217,9 @@
                 var newval = prompt('Please enter new value.', $(this).text());
                 $(this).text(newval);
             });
-            // bind functions to import/export buttons
-            $('#import').click(importdata);
-            $('#export').click(exportdata);
-            $('#addrow').click(addRow);
-            $('#addcol').click(addCol);
     });
+
+    
     </script>
     
     
