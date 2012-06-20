@@ -228,3 +228,176 @@ var CSV = (function () {
 		csvToArray: csvToArray
 	};
 }());
+
+
+function isString(o) {
+	return Object.prototype.toString.apply(o) === '[object String]';
+}
+
+function sanitize_input(d) {
+	var rxIsNum = /^\d+$|^\.\d+$|^\d\.\d*$/;
+	if(isString(d)) {
+		// quote numbers that are strings
+		if(rxIsNum.test(d)) {
+			d = '"' + d + '"';
+		} else {
+			// escape < and > to avoid XSS
+			d = d.replace(/</g, '&lt;');
+			d = d.replace(/>/g, '&gt;');
+		}
+	// convert nulls to '*null*'
+	} else if(d === null) {
+		d = '*null*';
+	}
+	return d;
+}
+
+function addchars(count, xchar) {
+	var i, out = '';
+	for(i = 0; i < count; i++)
+	  {
+		out += xchar;
+	  }
+	return out;
+}
+
+function csvtotable() {
+	var i, j, row, out = '',
+	cell = '',
+	csv = $('#inout').val(), // get the input from the textbox
+	arr = CSV.csvToArray(csv); // Convert the csv into an array
+
+	// Each item in the array is a row from the csv
+	// walk each row and create table cells for them
+	for (i = 0; i < arr.length; i += 1) {
+		row = arr[i];
+		out += '<tr>';
+		for (j = 0; j < row.length; j += 1) {
+			cell = sanitize_input(row[j]);
+			out += '<td>' + cell + '</td>';
+		}
+		out += '</tr>';
+	}
+
+	// replace the current data with the new imported data
+	$('#grid').html(out);
+}
+
+function tabletocsv() {
+	var i, j, tds, arr = [], csv,
+	rxIsInt = /^\d+$/,
+	rxIsFloat = /^\d*\.\d+$|^\d+\.\d*$/,
+	rxQuotedNumber = /^"\d+"$|"\.\d+"$|^"\d+\.\d*"$/,
+	rows = $('#grid tr');
+
+	// Walk the rows of the table and convert them into an array
+	rows.each( function() {
+		var row = [];
+		tds = $(this).find('td');
+		tds.each( function () {
+			var itm = $(this).text();
+			// Since everything in the table was conveted to text when inserted
+			// we have to convert it back to a number here before we pass it to 
+			// arrayToCsv so it handles them correctly.
+			if(rxIsInt.test(itm)) {
+				itm = parseInt(itm, 10);
+			} else if (rxIsFloat.test(itm)) {
+				itm = parseFloat(itm, 10);
+			// convert '*null*' to null
+			} else if (itm === '*null*') {
+				itm = null;
+			// don't escape quote quoted numbers
+			// instead interpret them as strings containg numbers
+			} else if (rxQuotedNumber.test(itm)) {
+				itm = itm.replace(/"/g, '')
+			}
+			row.push(itm);
+		});
+		arr.push(row);
+	});
+
+	// Convert the array to csv
+	csv = CSV.arrayToCsv(arr);
+
+	// display the generated csv in the textbox
+	$('#inout').val(csv);
+}
+
+function csvtomd(){
+	var i, j, row, out = '',
+	cell = '',
+	csv = $('#inout').val(), // get the input from the textbox
+	arr = CSV.csvToArray(csv); // Convert the csv into an array
+	var celllength = [];
+	// Each item in the array is a row from the csv
+	// walk each row and create table cells for them
+	
+	for (i = 0; i < arr.length; i += 1) {
+		row = arr[i];
+		for (j = 0; j < row.length; j += 1) {
+			cell = sanitize_input(row[j]);
+			if((celllength[j]<cell.length)||(celllength[j] === undefined))
+			  {
+				celllength[j] = cell.length;
+			  }
+		}
+	}
+	
+	for (i = 0; i < arr.length; i += 1) {
+		row = arr[i];
+		out += '';
+		for (j = 0; j < row.length; j += 1) {
+			cell = sanitize_input(row[j])+' ';
+			if(cell.length-1 < celllength[j])
+			  {
+				cell += addchars((celllength[j]-cell.length+1), " ");
+			  }
+			out += cell;
+			if(j!=(row.length-1))
+			  {
+				out += '|';
+			  }
+		}
+		if(i == 0) {
+			cell = '';
+			for (j = 0; j < celllength.length; j += 1)
+			  {
+				cell += addchars(celllength[j]+1,'-');
+				if(j!=(celllength.length-1))
+				  {
+					cell += '|';
+				  }
+			  }
+			out += '\n'+cell;
+		}
+		out += '\n';
+	}
+	
+	// replace the current data with the new imported data
+	$('#markdownta').val(out);
+}
+
+function addRow() {
+	var i,
+			tdCount = $('#grid tr:last>td').length,
+			row = '<tr>';
+			for (i = 0; i < tdCount; i += 1) {
+				row += '<td>*null*</td>';
+			}
+			row += '</tr>';
+	$('#grid tr:last').after(row);
+}
+
+function addCol() {
+	$('#grid tr').each( function () {
+				$(this).append('<td>*null*</td>');
+	});
+}
+
+$(document).ready( function() {
+		// Add click handler to edit cells
+		$('#grid td').live('click', function () {
+			var newval = prompt('Please enter new value.', $(this).text());
+			$(this).text(newval);
+		});
+});
