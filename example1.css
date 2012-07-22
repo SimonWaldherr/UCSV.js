@@ -39,6 +39,30 @@ span
     box-shadow: inset 0px 5px 45px -15px rgba(33, 33, 33, 1);
   }
 
+.selectmode
+  {
+    width: 130px;
+    height: 30px;
+    padding: 15px 2px 5px 2px;
+    margin: 5px;
+    background: #ccc;
+    border-radius: 12px;
+    display: inline-block;
+    vertical-align: middle;
+    font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
+    font-size: larger;
+    border: 1px #bbb solid;
+    -webkit-box-shadow: 0px 2px 1px 0px white;
+    box-shadow: 0px 2px 1px 0px white;
+  }
+
+.selectmode:hover
+  {
+    background: #aaa;
+    border: 1px #999 solid;
+    cursor: pointer;
+  }
+
 #everything
   {
     position: relative;
@@ -52,6 +76,11 @@ span
     margin: auto;
     background: #EEE;
     padding: 25px 25px 50px 25px;
+  }
+
+h1, h2
+  {
+    font-family:"Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;
   }
 
 .bt:active
@@ -144,6 +173,7 @@ span
     float: left;
     width: 500px;
     height: 500px;
+    font-size: large;
   }
 
 #markdownta
