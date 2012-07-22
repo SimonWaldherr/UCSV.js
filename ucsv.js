@@ -370,12 +370,44 @@ function csvtomd(){
 			  }
 			out += '\n'+cell;
 		}
-		out += '\n';
+		if(i != arr.length-1)
+		  {
+  		  out += '\n';
+		  }
 	}
 	
 	// replace the current data with the new imported data
 	$('#markdownta').val(out);
 }
+
+function mdtocsv()
+  {
+    var markdown = document.getElementById('markdownta').value;
+    var markdownlines = markdown.split("\n");
+    var markdowncells = new Array();
+    var csvout = '';
+    var i, j;
+    for (i = 0; i < markdownlines.length; i += 1)
+      {
+        if(i != 1)
+          {
+            markdowncells = markdownlines[i].split("|");
+            for (j = 0; j < markdowncells.length; j += 1)
+              {
+                csvout += markdowncells[j];
+                if(j != markdowncells.length-1)
+                  {
+                    csvout += ',';
+                  }
+              }
+            if(i != markdownlines.lingth-1)
+              {
+                csvout += "\n";
+              }
+          }
+      }
+    document.getElementById('inout').value = csvout;
+  }
 
 function addRow() {
 	var i,
